@@ -20,6 +20,16 @@ namespace HW_30092023_WPFClientApp.Net
                 tcpClient = new TcpClient();
 
                 await tcpClient.ConnectAsync(endPoint);
+
+                await GetAnswer();
+                if (answer == "Overloaded")
+                {
+                    tcpClient.Close();
+                    throw new Exception("The server is currently overloaded. Please try to connect later!");
+                    
+                }
+
+
             }
             catch (SocketException ex)
             {
@@ -43,7 +53,6 @@ namespace HW_30092023_WPFClientApp.Net
         {
             if(tcpClient != null)
             {
-               
                 return tcpClient.Connected;
             }
            return false;
@@ -68,7 +77,7 @@ namespace HW_30092023_WPFClientApp.Net
         public async Task GetAnswer()
         {
             var responseData = new byte[8192];
-
+            stream = tcpClient.GetStream();
             var response = new StringBuilder();
             int bytes;
             do

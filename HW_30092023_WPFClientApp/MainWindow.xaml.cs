@@ -64,12 +64,12 @@ namespace HW_30092023_WPFClientApp
 
 
 
-        private void btn_GetQuotation_Click(object sender, RoutedEventArgs e)
+        private async void btn_GetQuotation_Click(object sender, RoutedEventArgs e)
         {
             if(connect.IsConnected())
             {
-                connect.SendARequest();
-                connect.GetAnswer();
+                await connect.SendARequest();
+                await connect.GetAnswer();
                 tb_Answer.Text = connect.ReturnAnswer();
             }
             else
@@ -110,7 +110,6 @@ namespace HW_30092023_WPFClientApp
                 try
                 {
                     await connect.Connect(host, port);
-                    MessageBox.Show("Connected to the server");
                 }
                 catch (Exception ex)
                 {
@@ -119,5 +118,9 @@ namespace HW_30092023_WPFClientApp
             }
         }
 
+        private async void Window_Closed(object sender, EventArgs e)
+        {
+            await connect.Disconnect();
+        }
     }
 }
