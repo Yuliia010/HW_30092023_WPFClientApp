@@ -8,6 +8,7 @@ namespace HW_30092023_WPFClientApp.Net
 {
     public class NetworkConnection
     {
+
         private TcpClient tcpClient;
         private IPEndPoint endPoint;
         private NetworkStream stream;
