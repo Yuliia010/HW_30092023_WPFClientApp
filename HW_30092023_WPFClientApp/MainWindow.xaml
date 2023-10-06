@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HW_30092023_WPFClientApp"
         mc:Ignorable="d"
-        Title="Quote generator" Height="450" Width="800" Background="LightSteelBlue" Loaded="MainWindow_Loaded">
+        Title="Quote generator" Height="450" Width="800" Background="LightSteelBlue" Loaded="MainWindow_Loaded" Closed="Window_Closed">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.2*"></RowDefinition>

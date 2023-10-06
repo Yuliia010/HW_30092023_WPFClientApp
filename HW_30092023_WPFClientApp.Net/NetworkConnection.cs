@@ -1,4 +1,6 @@
-﻿using System.Collections.Specialized;
+﻿using Microsoft.VisualBasic;
+using System;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Net;
 using System.Net.Sockets;
@@ -12,14 +14,54 @@ namespace HW_30092023_WPFClientApp.Net
         private IPEndPoint endPoint;
         private NetworkStream stream;
         private string answer;
-        public async Task Connect(string host, int port)
+
+        public async Task SendLog(string login)
         {
+            string loginMessage = login;
+            byte[] loginData = Encoding.UTF8.GetBytes(loginMessage);
+            await tcpClient.GetStream().WriteAsync(loginData);
+
+        }
+
+        public async Task SendPass(string pass)
+        {
+            string passMessage = pass;
+            byte[] passData = Encoding.UTF8.GetBytes(passMessage);
+            await tcpClient.GetStream().WriteAsync(passData);
+        }
+
+        public async Task Connect(string host, int port, string login, string password)
+        {
+
             try
             {
                 endPoint = new IPEndPoint(IPAddress.Parse(host), port);
                 tcpClient = new TcpClient();
 
                 await tcpClient.ConnectAsync(endPoint);
+
+                if (!tcpClient.Connected)
+                {
+                    throw new Exception("Not connected to the server!");
+                }
+
+                await SendLog(login);
+                await GetAnswer();
+
+                if (answer == "Reject")
+                {
+                    await Disconnect();
+                    throw new Exception("Invalid login!");
+                }
+
+                await SendPass(password);
+                await GetAnswer();
+
+                if (answer == "Reject")
+                {
+                   await Disconnect();
+                    throw new Exception("Invalid password!");
+                }
             }
             catch (SocketException ex)
             {
@@ -68,7 +110,7 @@ namespace HW_30092023_WPFClientApp.Net
         public async Task GetAnswer()
         {
             var responseData = new byte[8192];
-
+            stream = tcpClient.GetStream();
             var response = new StringBuilder();
             int bytes;
             do

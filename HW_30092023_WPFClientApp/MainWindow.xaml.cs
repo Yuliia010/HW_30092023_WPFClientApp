@@ -16,6 +16,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
+using Microsoft.VisualBasic;
+using System.Net.Http;
 
 namespace HW_30092023_WPFClientApp
 {
@@ -53,6 +55,7 @@ namespace HW_30092023_WPFClientApp
                         {
                             btn_Connect.Background = new SolidColorBrush(Colors.IndianRed);
                             btn_Connect.Content = "Disconnected";
+                            tb_Answer.Text = "";
                         }
                     });
 
@@ -64,12 +67,12 @@ namespace HW_30092023_WPFClientApp
 
 
 
-        private void btn_GetQuotation_Click(object sender, RoutedEventArgs e)
+        private async void btn_GetQuotation_Click(object sender, RoutedEventArgs e)
         {
             if(connect.IsConnected())
             {
-                connect.SendARequest();
-                connect.GetAnswer();
+                await connect.SendARequest();
+                await connect.GetAnswer();
                 tb_Answer.Text = connect.ReturnAnswer();
             }
             else
@@ -80,9 +83,34 @@ namespace HW_30092023_WPFClientApp
 
         }
 
+        public async Task EnterLogAndPass()
+        {
+            string login = Interaction.InputBox("Enter your login:", "Login", "");
+
+            if (!string.IsNullOrEmpty(login))
+            {
+                string password = Interaction.InputBox("Enter your password:", "Password", "");
+
+                if (!string.IsNullOrEmpty(password))
+                {
+                    await ConnectAction(login, password);
+                }
+                else
+                {
+                    MessageBox.Show("Password cannot be empty.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Login cannot be empty.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+        }
 
         private async void btn_Connect_Click(object sender, RoutedEventArgs e)
         {
+            
+
             if (!connect.IsConnected())
             {
                 if (tb_IP.Text.Length == 0 || tb_Port.Text.Length == 0)
@@ -91,7 +119,8 @@ namespace HW_30092023_WPFClientApp
                 }
                 else
                 {
-                    await ConnectAction();
+                    await EnterLogAndPass();
+                    
                 }
             }
             else if (connect.IsConnected())
@@ -100,7 +129,7 @@ namespace HW_30092023_WPFClientApp
             }
         }
 
-        private async Task ConnectAction()
+        private async Task ConnectAction(string login, string password)
         {
             string strport = tb_Port.Text;
             int port;
@@ -109,7 +138,7 @@ namespace HW_30092023_WPFClientApp
                 string host = tb_IP.Text;
                 try
                 {
-                    await connect.Connect(host, port);
+                    await connect.Connect(host, port, login, password);
                     MessageBox.Show("Connected to the server");
                 }
                 catch (Exception ex)
@@ -119,5 +148,10 @@ namespace HW_30092023_WPFClientApp
             }
         }
 
+        private async void Window_Closed(object sender, EventArgs e)
+        {
+           await connect.Disconnect();
+
+        }
     }
 }
